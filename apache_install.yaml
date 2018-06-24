@@ -1,0 +1,39 @@
+---
+- hosts: web_portal
+  tasks:
+    - name: Apt get update
+      apt: update_cache=yes
+
+    - name: Install apache2, nginx, nmap
+      apt: name={{ item }}  update_cache=no
+      with_items:
+       - apache2
+       - nginx
+       - nmap
+
+    - name: copy data files
+      copy: src=index.html dest=/var/www/html/
+      register: copy_status
+
+    - name: Stop the service
+      service: name=apache2 state=stopped
+
+    - name: Copy template file
+      template: src=current.html.j2 dest=/var/www/html/current.html
+      notify: 
+        - Start apache
+
+    - name: Check uptime
+      shell: uptime
+      register: uptime_var
+
+#    - name: Print uptime
+#      debug:
+#        var: uptime_var
+   
+#    - name: Copy status
+#      debug: var=copy_status
+
+  handlers:
+    - name: Start apache
+      service: name=apache2 state=restarted

@@ -23,9 +23,23 @@
       notify: 
         - Start apache
 
-    - name: Check uptime
+#    - name: print hostname
+#      debug: var=ansible_hostname
+
+    - name: Testing conditional
       shell: uptime
-      register: uptime_var
+      when: ansible_hostname == "ip-10-0-1-127"
+
+    - name: Testing until
+      shell: service apache2 status
+      register: result
+      until: result.stdout.find("active (running)") != -1
+      retries: 5
+      delay: 5
+
+#    - name: Check uptime
+#      shell: uptime
+#      register: uptime_var
 
 #    - name: Print uptime
 #      debug:
